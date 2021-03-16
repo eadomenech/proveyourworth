@@ -310,7 +310,7 @@ pf = urlencode(data)
 p = json.dumps(data)
 
 crl.setopt(pycurl.POST, 1)
-crl.setopt(crl.POSTFIELDS, p)
+crl.setopt(crl.POSTFIELDS, pf)
 
 crl.setopt(crl.HTTPPOST, [
     ('image', (
@@ -331,6 +331,7 @@ crl.setopt(crl.HTTPPOST, [
         crl.FORM_FILE, './aboutme.txt',
     )),
 ])
+
 # Set our header function.
 crl.setopt(crl.HEADERFUNCTION, header_function)
 
