@@ -195,6 +195,11 @@ response = session.post(
     response_payload.headers['X-Post-Back-To'],
     headers=headers, files=files, data=data)
 
+print("Request:")
+print(response.request.url)
+print(response.request.body)
+print(response.request.headers)
+print("Response")
 print(response.status_code)
 print(response.content)
 print(response.url)
