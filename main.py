@@ -1,6 +1,7 @@
 import hashlib
-import urllib.parse
 import pycurl
+import json
+from urllib.parse import urlencode
 from io import BytesIO
 
 from bs4 import BeautifulSoup
@@ -135,14 +136,15 @@ class Avila2019():
 
 
 URL = 'https://www.proveyourworth.net/level3/'
-email = 'eadomenech@gmail.com'
-name = 'Ernesto'
+email = 'tests@gmail.com'
+name = 'Test'
 params = {}
 success = False
 wm = Avila2019()
-b_obj = BytesIO()
 b_obj1 = BytesIO()
 b_obj2 = BytesIO()
+b_obj3 = BytesIO()
+b_obj4 = BytesIO()
 headers = {}
 
 
@@ -177,16 +179,20 @@ def header_function(header_line):
 
 
 while not success:
+
     crl = pycurl.Curl()
 
     # Set URL value
     crl.setopt(crl.URL, URL)
 
     # Write bytes that are utf-8 encoded
-    crl.setopt(crl.WRITEDATA, b_obj)
+    crl.setopt(crl.WRITEDATA, b_obj1)
+
+    # Set our header function.
+    crl.setopt(crl.HEADERFUNCTION, header_function)
 
     # Perform a file transfer
-    crl.setopt(pycurl.COOKIEJAR, 'cookie.txt')
+    crl.setopt(pycurl.COOKIEJAR, 'cookie1.txt')
     crl.perform()
 
     # HTTP response code, e.g. 200.
@@ -196,116 +202,147 @@ while not success:
     # End curl session
     crl.close()
 
+    print(f"Headers: {headers}")
+    headers = {}
+
     if status_code == 200:
         # Get statefulhash
-        soup = BeautifulSoup(b_obj.getvalue())
+        soup = BeautifulSoup(b_obj1.getvalue())
         inputs = soup.find("input")
         if inputs:
             params['username'] = name
             print(f"Name: {params['username']}")
             params['statefulhash'] = inputs['value']
             print(f"Statefulhash: {params['statefulhash']}")
-            url_activate = URL + 'activate' + '?' + urllib.parse.urlencode(params)
+            url_activate = URL + 'activate' + '?' + urlencode(params)
 
             crl = pycurl.Curl()
-            crl.setopt(pycurl.COOKIEFILE, 'cookie.txt')
 
             # Set URL value
             crl.setopt(crl.URL, url_activate)
             
             # Write bytes that are utf-8 encoded
-            crl.setopt(crl.WRITEDATA, b_obj1)
+            crl.setopt(crl.WRITEDATA, b_obj2)
 
             # Set our header function.
             crl.setopt(crl.HEADERFUNCTION, header_function)
 
             # Perform a file transfer
+            crl.setopt(pycurl.COOKIEFILE, 'cookie1.txt')
             crl.setopt(pycurl.COOKIEJAR, 'cookie2.txt')
             crl.perform()
             
             # End curl session
             crl.close()
+
+            print('Status: %d' % status_code)
+            print(f"Headers: {headers}")
             if 'x-payload-url' in headers:
                 payload_url = headers['x-payload-url']
                 print(f"x-payload-url: {payload_url}")
                 success = True
+                headers = {}
 
 crl = pycurl.Curl()
-crl.setopt(pycurl.COOKIEFILE, 'cookie2.txt')
 
 # Set URL value
 crl.setopt(crl.URL, payload_url)
 
+# Follow redirect.
+crl.setopt(crl.FOLLOWLOCATION, True)
+
 # Write bytes that are utf-8 encoded
-crl.setopt(crl.WRITEDATA, b_obj2)
+crl.setopt(crl.WRITEDATA, b_obj3)
+
+# Set our header function.
+crl.setopt(crl.HEADERFUNCTION, header_function)
 
 # Perform a file transfer
+crl.setopt(pycurl.COOKIEFILE, 'cookie2.txt')
 crl.setopt(pycurl.COOKIEJAR, 'cookie3.txt')
 crl.perform()
 
 # HTTP response code, e.g. 200.
 status_code = crl.getinfo(crl.RESPONSE_CODE)
+
+# End curl session
+crl.close()
+
+if 'x-post-back-to' in headers:
+    post_url = headers['x-post-back-to']
+    print(f"x-post-back-to: {post_url}")
+
 print('Status: %d' % status_code)
-print(b_obj2.getvalue())
+print(f"Headers: {headers}")
+headers = {}
 
-#     r = session.get(f"{URL}")
-#     if r.status_code == 200:
-#         soup = BeautifulSoup(r.text)
-#         inputs = soup.find("input")
-#         if inputs:
-#             params['statefulhash'] = inputs['value']
-#             params['username'] = name
-#             url_activate = URL + 'activate'
-#             res = session.get(url_activate, headers=headers, params=params)
-#             if 'X-Payload-URL' in res.headers:
-#                 payload_url = res.headers['X-Payload-URL']
-#                 success = True
+if status_code == 200:
+    file = open("bmw_for_life.jpg", "wb")
+    file.write(b_obj3.getvalue())
+    file.close()
+    success = True
 
-# success = False
-# while not success:
-#     response_payload = session.get(payload_url)
-#     if response_payload.status_code == 200:
-#         file = open("bmw_for_life.jpg", "wb")
-#         file.write(response_payload.content)
-#         file.close()
-#         success = True
+img = Image.open("bmw_for_life.jpg")
+draw = ImageDraw.Draw(img)
+draw.text(
+    (img.size[0] - 250, img.size[1] - 50), name, (255, 255, 255))
+img.save('signed_bmw_for_life.jpg', quality=90)
 
-# img = Image.open("bmw_for_life.jpg")
-# draw = ImageDraw.Draw(img)
-# draw.text(
-#     (img.size[0] - 250, img.size[1] - 50), name, (255, 255, 255))
-# img.save('signed_bmw_for_life.jpg', quality=90)
+cover_image = Image.open(
+    'signed_bmw_for_life.jpg').convert('RGB')
+watermarked_image = wm.insert(cover_image)
+watermarked_image.save("watermarked_signed_bmw_for_life.png")
 
-# cover_image = Image.open(
-#     'signed_bmw_for_life.jpg').convert('RGB')
-# watermarked_image = wm.insert(cover_image)
-# watermarked_image.save("watermarked_signed_bmw_for_life.png")
+crl = pycurl.Curl()
+crl.setopt(crl.URL, post_url)
 
-# files = {
-#     'image': open('watermarked_signed_bmw_for_life.png', 'rb'),
-#     'code': open('resources/code.rar', 'rb'),
-#     'resume': open('CV/cv.pdf', 'rb'),
-#     'aboutme': open('aboutme.txt', 'rb')
-#     }
+# Follow redirect.
+crl.setopt(crl.FOLLOWLOCATION, True)
 
-# data = {'email': email, 'name': name, 'aboutme': 'I am a Python developer.'}
+# Write bytes that are utf-8 encoded
+crl.setopt(crl.WRITEDATA, b_obj4)
 
-# headers = {
-#     'Host': 'www.proveyourworth.net',
-#     'Upgrade-Insecure-Request': '1',
-#     'Connection': 'keep-alive'
-# }
+data = {
+    'email': email, 'name': name, 'aboutme': 'I am a Python developer.',
+    'image': 'image', 'resume': 'resume', 'code': 'code'}
 
-# response = session.post(
-#     response_payload.headers['X-Post-Back-To'],
-#     headers=headers, files=files, data=data)
+pf = urlencode(data)
+p = json.dumps(data)
 
-# print("Request:")
-# print(response.request.url)
-# print(response.request.body)
-# print(response.request.headers)
-# print("Response")
-# print(response.status_code)
-# print(response.content)
-# print(response.url)
-# print(response.headers)
+crl.setopt(pycurl.POST, 1)
+crl.setopt(crl.POSTFIELDS, p)
+
+crl.setopt(crl.HTTPPOST, [
+    ('image', (
+        # TO-DO use martermaked image
+        # Upload the contents of the file
+        crl.FORM_FILE, './signed_bmw_for_life.jpg',
+    )),
+    ('code', (
+        # Upload the contents of the file
+        crl.FORM_FILE, './resources/code.rar',
+    )),
+    ('resume', (
+        # Upload the contents of the file
+        crl.FORM_FILE, './CV/cv.pdf',
+    )),
+    ('aboutme', (
+        # Upload the contents of the file
+        crl.FORM_FILE, './aboutme.txt',
+    )),
+])
+# Set our header function.
+crl.setopt(crl.HEADERFUNCTION, header_function)
+
+# Perform a file transfer
+crl.setopt(pycurl.COOKIEFILE, 'cookie3.txt')
+crl.perform()
+
+# HTTP response code, e.g. 200.
+status_code = crl.getinfo(crl.RESPONSE_CODE)
+print('Status: %d' % status_code)
+print(f"Headers: {headers}")
+print(f"Body: {b_obj4.getvalue()}")
+
+# End curl session
+crl.close()
