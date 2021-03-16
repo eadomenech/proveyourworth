@@ -129,6 +129,8 @@ dmypy.json
 .pyre/
 
 # Temp
-CV/
 static/
 temp/
+
+*.jpg
+*.png

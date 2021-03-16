@@ -160,24 +160,24 @@ success = False
 while not success:
     response_payload = session.get(payload_url)
     if response_payload.status_code == 200:
-        file = open("static/bmw_for_life.jpg", "wb")
+        file = open("bmw_for_life.jpg", "wb")
         file.write(response_payload.content)
         file.close()
         success = True
 
-img = Image.open("static/bmw_for_life.jpg")
+img = Image.open("bmw_for_life.jpg")
 draw = ImageDraw.Draw(img)
 draw.text(
     (img.size[0] - 250, img.size[1] - 50), name, (255, 255, 255))
-img.save('static/signed_bmw_for_life.jpg', quality=90)
+img.save('signed_bmw_for_life.jpg', quality=90)
 
 cover_image = Image.open(
-    'static/signed_bmw_for_life.jpg').convert('RGB')
+    'signed_bmw_for_life.jpg').convert('RGB')
 watermarked_image = wm.insert(cover_image)
-watermarked_image.save("static/watermarked_signed_bmw_for_life.png")
+watermarked_image.save("watermarked_signed_bmw_for_life.png")
 
 files = {
-    'image': open('static/watermarked_signed_bmw_for_life.png', 'rb'),
+    'image': open('watermarked_signed_bmw_for_life.png', 'rb'),
     'code': open('resources/code.rar', 'rb'),
     'resume': open('CV/cv.pdf', 'rb')}
 aboutme = "I’m a Python developer. Mainly, my experience is in " +\
@@ -186,9 +186,11 @@ aboutme = "I’m a Python developer. Mainly, my experience is in " +\
     "don't dance."
 
 data = {'email': email, 'name': name, 'aboutme': aboutme}
-assert False, session.cookies
-# response = session.post(
-#     response_payload.headers['X-Post-Back-To'], files=files, data=data)
+headers['X-Oh-Look'] = session.cookies.get_dict()
+assert False
+response = session.post(
+    response_payload.headers['X-Post-Back-To'],
+    headers=headers, files=files, data=data)
 
 print(response.status_code)
 print(response.content)

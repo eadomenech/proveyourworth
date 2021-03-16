@@ -1,10 +1,9 @@
 import requests
-from requests.structures import CaseInsensitiveDict
 import hashlib
+from requests.structures import CaseInsensitiveDict
 
 from bs4 import BeautifulSoup
-from PIL import Image
-from PIL import ImageDraw 
+from PIL import Image, ImageDraw
 import numpy as np
 from copy import deepcopy
 import cv2
@@ -16,6 +15,7 @@ def sha256Binary(key):
     for v in range(256-(len(sha_data))):
         sha_data = '0' + sha_data
     return sha_data
+
 
 class BlocksImage():
     def __init__(self, matrix, sblock_rows=8, sblock_cols=8):
@@ -57,6 +57,7 @@ class BlocksImage():
     def set_block(self, block, num_block):
         pos = self.get_coord(num_block)
         self.matrix[pos[0]:pos[2], pos[1]:pos[3]] = block
+
 
 class Avila2019():
     """
@@ -159,32 +160,37 @@ success = False
 while not success:
     response_payload = session.get(payload_url)
     if response_payload.status_code == 200:
-        file = open("static/bmw_for_life.jpg", "wb")
+        file = open("bmw_for_life.jpg", "wb")
         file.write(response_payload.content)
         file.close()
         success = True
 
-img = Image.open("static/bmw_for_life.jpg")
+img = Image.open("bmw_for_life.jpg")
 draw = ImageDraw.Draw(img)
 draw.text(
-    (img.size[0]/2, img.size[1]/2), name, (255,255,255))
-img.save('static/signed_bmw_for_life.jpg', quality=90)
+    (img.size[0] - 250, img.size[1] - 50), name, (255, 255, 255))
+img.save('signed_bmw_for_life.jpg', quality=90)
 
 cover_image = Image.open(
-    'static/signed_bmw_for_life.jpg').convert('RGB')
+    'signed_bmw_for_life.jpg').convert('RGB')
 watermarked_image = wm.insert(cover_image)
-watermarked_image.save("static/watermarked_signed_bmw_for_life.png")
+watermarked_image.save("watermarked_signed_bmw_for_life.png")
 
 files = {
-    'image': open('static/watermarked_signed_bmw_for_life.png', 'rb'),
+    'image': open('watermarked_signed_bmw_for_life.png', 'rb'),
     'code': open('resources/code.rar', 'rb'),
     'resume': open('CV/cv.pdf', 'rb')}
-data = {
-    'email': email, 'name': name,
-    'aboutme': 'I am a hardworking and responsible person. I like teamwork and I hope to be useful in the development team where I work.'}
+aboutme = "I’m a Python developer. Mainly, my experience is in " +\
+    "Python, mostly web development with Django, Web2py and Flask. " +\
+    "I am a hardworking and responsible person. I love soccer and I " +\
+    "don't dance."
 
+data = {'email': email, 'name': name, 'aboutme': aboutme}
+headers['X-Oh-Look'] = session.cookies.get_dict()
+assert False
 response = session.post(
-    response_payload.headers['X-Post-Back-To'], files=files, data=data)
+    response_payload.headers['X-Post-Back-To'],
+    headers=headers, files=files, data=data)
 
 print(response.status_code)
 print(response.content)
