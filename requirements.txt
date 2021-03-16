@@ -4,3 +4,5 @@ Pillow
 numpy
 opencv-python
 flake8
+
+pycurl

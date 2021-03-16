@@ -1,6 +1,7 @@
-import requests
 import hashlib
-from requests.structures import CaseInsensitiveDict
+import urllib.parse
+import pycurl
+from io import BytesIO
 
 from bs4 import BeautifulSoup
 from PIL import Image, ImageDraw
@@ -135,72 +136,176 @@ class Avila2019():
 
 URL = 'https://www.proveyourworth.net/level3/'
 email = 'eadomenech@gmail.com'
-name = 'Ernesto Avila Domenech'
+name = 'Ernesto'
 params = {}
-headers = CaseInsensitiveDict()
-session = requests.Session()
 success = False
 wm = Avila2019()
+b_obj = BytesIO()
+b_obj1 = BytesIO()
+b_obj2 = BytesIO()
+headers = {}
+
+
+def header_function(header_line):
+    # HTTP standard specifies that headers are encoded in iso-8859-1.
+    # On Python 2, decoding step can be skipped.
+    # On Python 3, decoding step is required.
+    header_line = header_line.decode('iso-8859-1')
+
+    # Header lines include the first status line (HTTP/1.x ...).
+    # We are going to ignore all lines that don't have a colon in them.
+    # This will botch headers that are split on multiple lines...
+    if ':' not in header_line:
+        return
+
+    # Break the header line into header name and value.
+    name, value = header_line.split(':', 1)
+
+    # Remove whitespace that may be present.
+    # Header lines include the trailing newline, and there may be whitespace
+    # around the colon.
+    name = name.strip()
+    value = value.strip()
+
+    # Header names are case insensitive.
+    # Lowercase name here.
+    name = name.lower()
+
+    # Now we can actually record the header name and value.
+    # Note: this only works when headers are not duplicated, see below.
+    headers[name] = value
+
 
 while not success:
-    r = session.get(f"{URL}")
-    if r.status_code == 200:
-        soup = BeautifulSoup(r.text)
+    crl = pycurl.Curl()
+
+    # Set URL value
+    crl.setopt(crl.URL, URL)
+
+    # Write bytes that are utf-8 encoded
+    crl.setopt(crl.WRITEDATA, b_obj)
+
+    # Perform a file transfer
+    crl.setopt(pycurl.COOKIEJAR, 'cookie.txt')
+    crl.perform()
+
+    # HTTP response code, e.g. 200.
+    status_code = crl.getinfo(crl.RESPONSE_CODE)
+    print('Status: %d' % status_code)
+
+    # End curl session
+    crl.close()
+
+    if status_code == 200:
+        # Get statefulhash
+        soup = BeautifulSoup(b_obj.getvalue())
         inputs = soup.find("input")
         if inputs:
-            params['statefulhash'] = inputs['value']
             params['username'] = name
-            url_activate = URL + 'activate'
-            res = session.get(url_activate, headers=headers, params=params)
-            if 'X-Payload-URL' in res.headers:
-                payload_url = res.headers['X-Payload-URL']
+            print(f"Name: {params['username']}")
+            params['statefulhash'] = inputs['value']
+            print(f"Statefulhash: {params['statefulhash']}")
+            url_activate = URL + 'activate' + '?' + urllib.parse.urlencode(params)
+
+            crl = pycurl.Curl()
+            crl.setopt(pycurl.COOKIEFILE, 'cookie.txt')
+
+            # Set URL value
+            crl.setopt(crl.URL, url_activate)
+            
+            # Write bytes that are utf-8 encoded
+            crl.setopt(crl.WRITEDATA, b_obj1)
+
+            # Set our header function.
+            crl.setopt(crl.HEADERFUNCTION, header_function)
+
+            # Perform a file transfer
+            crl.setopt(pycurl.COOKIEJAR, 'cookie2.txt')
+            crl.perform()
+            
+            # End curl session
+            crl.close()
+            if 'x-payload-url' in headers:
+                payload_url = headers['x-payload-url']
+                print(f"x-payload-url: {payload_url}")
                 success = True
 
-success = False
-while not success:
-    response_payload = session.get(payload_url)
-    if response_payload.status_code == 200:
-        file = open("bmw_for_life.jpg", "wb")
-        file.write(response_payload.content)
-        file.close()
-        success = True
+crl = pycurl.Curl()
+crl.setopt(pycurl.COOKIEFILE, 'cookie2.txt')
 
-img = Image.open("bmw_for_life.jpg")
-draw = ImageDraw.Draw(img)
-draw.text(
-    (img.size[0] - 250, img.size[1] - 50), name, (255, 255, 255))
-img.save('signed_bmw_for_life.jpg', quality=90)
+# Set URL value
+crl.setopt(crl.URL, payload_url)
 
-cover_image = Image.open(
-    'signed_bmw_for_life.jpg').convert('RGB')
-watermarked_image = wm.insert(cover_image)
-watermarked_image.save("watermarked_signed_bmw_for_life.png")
+# Write bytes that are utf-8 encoded
+crl.setopt(crl.WRITEDATA, b_obj2)
 
-files = {
-    'image': open('watermarked_signed_bmw_for_life.png', 'rb'),
-    'code': open('resources/code.rar', 'rb'),
-    'resume': open('CV/cv.pdf', 'rb'),
-    'aboutme': open('aboutme.txt', 'rb')
-    }
+# Perform a file transfer
+crl.setopt(pycurl.COOKIEJAR, 'cookie3.txt')
+crl.perform()
 
-data = {'email': email, 'name': name, 'aboutme': 'I am a Python developer.'}
+# HTTP response code, e.g. 200.
+status_code = crl.getinfo(crl.RESPONSE_CODE)
+print('Status: %d' % status_code)
+print(b_obj2.getvalue())
 
-headers = {
-    'Host': 'www.proveyourworth.net',
-    'Upgrade-Insecure-Request': '1',
-    'Connection': 'keep-alive'
-}
+#     r = session.get(f"{URL}")
+#     if r.status_code == 200:
+#         soup = BeautifulSoup(r.text)
+#         inputs = soup.find("input")
+#         if inputs:
+#             params['statefulhash'] = inputs['value']
+#             params['username'] = name
+#             url_activate = URL + 'activate'
+#             res = session.get(url_activate, headers=headers, params=params)
+#             if 'X-Payload-URL' in res.headers:
+#                 payload_url = res.headers['X-Payload-URL']
+#                 success = True
 
-response = session.post(
-    response_payload.headers['X-Post-Back-To'],
-    headers=headers, files=files, data=data)
+# success = False
+# while not success:
+#     response_payload = session.get(payload_url)
+#     if response_payload.status_code == 200:
+#         file = open("bmw_for_life.jpg", "wb")
+#         file.write(response_payload.content)
+#         file.close()
+#         success = True
 
-print("Request:")
-print(response.request.url)
-print(response.request.body)
-print(response.request.headers)
-print("Response")
-print(response.status_code)
-print(response.content)
-print(response.url)
-print(response.headers)
+# img = Image.open("bmw_for_life.jpg")
+# draw = ImageDraw.Draw(img)
+# draw.text(
+#     (img.size[0] - 250, img.size[1] - 50), name, (255, 255, 255))
+# img.save('signed_bmw_for_life.jpg', quality=90)
+
+# cover_image = Image.open(
+#     'signed_bmw_for_life.jpg').convert('RGB')
+# watermarked_image = wm.insert(cover_image)
+# watermarked_image.save("watermarked_signed_bmw_for_life.png")
+
+# files = {
+#     'image': open('watermarked_signed_bmw_for_life.png', 'rb'),
+#     'code': open('resources/code.rar', 'rb'),
+#     'resume': open('CV/cv.pdf', 'rb'),
+#     'aboutme': open('aboutme.txt', 'rb')
+#     }
+
+# data = {'email': email, 'name': name, 'aboutme': 'I am a Python developer.'}
+
+# headers = {
+#     'Host': 'www.proveyourworth.net',
+#     'Upgrade-Insecure-Request': '1',
+#     'Connection': 'keep-alive'
+# }
+
+# response = session.post(
+#     response_payload.headers['X-Post-Back-To'],
+#     headers=headers, files=files, data=data)
+
+# print("Request:")
+# print(response.request.url)
+# print(response.request.body)
+# print(response.request.headers)
+# print("Response")
+# print(response.status_code)
+# print(response.content)
+# print(response.url)
+# print(response.headers)
