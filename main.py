@@ -191,6 +191,11 @@ headers = {
     'Connection': 'keep-alive'
 }
 
+print(
+    requests.Request('POST', response_payload.headers['X-Post-Back-To'],
+    files=files, data=data
+).prepare().body)
+
 response = session.post(
     response_payload.headers['X-Post-Back-To'],
     headers=headers, files=files, data=data)
