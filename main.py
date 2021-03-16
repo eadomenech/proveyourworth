@@ -1,12 +1,14 @@
 import requests
 import hashlib
+import base64
+import json
 from requests.structures import CaseInsensitiveDict
 
+import numpy as np
+import cv2
 from bs4 import BeautifulSoup
 from PIL import Image, ImageDraw
-import numpy as np
 from copy import deepcopy
-import cv2
 
 
 def sha256Binary(key):
@@ -176,24 +178,41 @@ cover_image = Image.open(
 watermarked_image = wm.insert(cover_image)
 watermarked_image.save("watermarked_signed_bmw_for_life.png")
 
-files = {
-    'image': open('watermarked_signed_bmw_for_life.png', 'rb'),
-    'code': open('resources/code.rar', 'rb'),
-    'resume': open('CV/cv.pdf', 'rb'),
-    'aboutme': open('aboutme.txt', 'rb')
-    }
+with open('watermarked_signed_bmw_for_life.png', "rb") as f_image:
+    im_bytes = f_image.read()
+image = base64.b64encode(im_bytes).decode("utf8")
 
-data = {'email': email, 'name': name, 'aboutme': 'I am a Python developer.'}
+with open('resources/code.rar', "rb") as f_code:
+    im_bytes = f_code.read()
+code = base64.b64encode(im_bytes).decode("utf8")
+
+with open('CV/cv.pdf', "rb") as f_cv:
+    im_bytes = f_cv.read()
+resume = base64.b64encode(im_bytes).decode("utf8")
+
+with open('aboutme.txt', "rb") as f_aboutme:
+    im_bytes = f_aboutme.read()
+aboutme = base64.b64encode(im_bytes).decode("utf8")
+
+data = json.dumps({
+    'image': image,
+    'code': code,
+    'resume': resume,
+    'aboutme': aboutme,
+    'email': email,
+    'name': name
+})
 
 headers = {
+    'Content-type': 'application/json',
+    'Accept': 'text/plain',
     'Host': 'www.proveyourworth.net',
     'Upgrade-Insecure-Request': '1',
     'Connection': 'keep-alive'
 }
 
 response = session.post(
-    response_payload.headers['X-Post-Back-To'],
-    headers=headers, files=files, data=data)
+    response_payload.headers['X-Post-Back-To'], headers=headers, data=data)
 
 print(response.status_code)
 print(response.content)
