@@ -181,9 +181,9 @@ files = {
     'code': open('resources/code.rar', 'rb'),
     'resume': open('CV/cv.pdf', 'rb'),
     'aboutme': open('aboutme.txt', 'rb')
-    }
+}
 
-data = {'email': email, 'name': name, 'aboutme': 'I am a Python developer.'}
+data = {'email': email, 'name': name}
 
 headers = {
     'Host': 'www.proveyourworth.net',
