@@ -179,15 +179,18 @@ watermarked_image.save("watermarked_signed_bmw_for_life.png")
 files = {
     'image': open('watermarked_signed_bmw_for_life.png', 'rb'),
     'code': open('resources/code.rar', 'rb'),
-    'resume': open('CV/cv.pdf', 'rb')}
-aboutme = "I’m a Python developer. Mainly, my experience is in " +\
-    "Python, mostly web development with Django, Web2py and Flask. " +\
-    "I am a hardworking and responsible person. I love soccer and I " +\
-    "don't dance."
+    'resume': open('CV/cv.pdf', 'rb'),
+    'aboutme': open('aboutme.txt', 'rb')
+    }
 
-data = {'email': email, 'name': name, 'aboutme': aboutme}
-headers['X-Oh-Look'] = session.cookies.get_dict()
-assert False
+data = {'email': email, 'name': name, 'aboutme': 'I am a Python developer.'}
+
+headers = {
+    'Host': 'www.proveyourworth.net',
+    'Upgrade-Insecure-Request': '1',
+    'Connection': 'keep-alive'
+}
+
 response = session.post(
     response_payload.headers['X-Post-Back-To'],
     headers=headers, files=files, data=data)
