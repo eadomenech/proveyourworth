@@ -1,12 +1,13 @@
 import requests
 import hashlib
 from requests.structures import CaseInsensitiveDict
+from pathlib import Path
 
+import numpy as np
+import cv2
 from bs4 import BeautifulSoup
 from PIL import Image, ImageDraw
-import numpy as np
 from copy import deepcopy
-import cv2
 
 
 def sha256Binary(key):
@@ -134,78 +135,82 @@ class Avila2019():
 
 
 URL = 'https://www.proveyourworth.net/level3/'
-email = 'eadomenech@gmail.com'
-name = 'Ernesto Avila Domenech'
+email = 'test@gmail.com'
+name = 'Test'
+aboutme = "I’m a Python developer. Mainly, my experience is in " +\
+    "Python, mostly web development with Django, Web2py and Flask. " +\
+    "I am a hardworking and responsible person. I love soccer and I " +\
+    "don't dance."
+file_path = Path("./")
 params = {}
 headers = CaseInsensitiveDict()
 session = requests.Session()
-success = False
 wm = Avila2019()
 
-while not success:
-    r = session.get(f"{URL}")
-    if r.status_code == 200:
-        soup = BeautifulSoup(r.text)
-        inputs = soup.find("input")
-        if inputs:
-            params['statefulhash'] = inputs['value']
-            params['username'] = name
-            url_activate = URL + 'activate'
-            res = session.get(url_activate, headers=headers, params=params)
-            if 'X-Payload-URL' in res.headers:
-                payload_url = res.headers['X-Payload-URL']
-                success = True
 
-success = False
-while not success:
-    response_payload = session.get(payload_url)
-    if response_payload.status_code == 200:
-        file = open("bmw_for_life.jpg", "wb")
-        file.write(response_payload.content)
-        file.close()
-        success = True
+def get_payload_url():
+    while True:
+        response = session.get(f"{URL}")
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text)
+            inputs = soup.find("input")
+            if inputs:
+                params['statefulhash'] = inputs['value']
+                params['username'] = name
+                url_activate = URL + 'activate'
+                res = session.get(
+                    url_activate, headers=headers, params=params)
+                if 'X-Payload-URL' in res.headers:
+                    return res.headers['X-Payload-URL']
 
-img = Image.open("bmw_for_life.jpg")
-draw = ImageDraw.Draw(img)
-draw.text(
-    (img.size[0] - 250, img.size[1] - 50), name, (255, 255, 255))
-img.save('signed_bmw_for_life.jpg', quality=90)
 
-cover_image = Image.open(
-    'signed_bmw_for_life.jpg').convert('RGB')
-watermarked_image = wm.insert(cover_image)
-watermarked_image.save("watermarked_signed_bmw_for_life.png")
+def download_and_sign_image(payload_url):
+    success = False
+    while not success:
+        response_payload = session.get(payload_url)
+        if response_payload.status_code == 200:
+            file = open("bmw_for_life.jpg", "wb")
+            file.write(response_payload.content)
+            file.close()
+            post_url = response_payload.headers['X-Post-Back-To']
+            success = True
 
-files = {
-    'image': open('watermarked_signed_bmw_for_life.png', 'rb'),
-    'code': open('resources/code.rar', 'rb'),
-    'resume': open('CV/cv.pdf', 'rb'),
-    'aboutme': open('aboutme.txt', 'rb')
-}
+    img = Image.open("bmw_for_life.jpg")
+    draw = ImageDraw.Draw(img)
+    draw.text(
+        (20, 20),
+        f"{name} \n Hash:{params['statefulhash']}", (255, 255, 255))
+    img.save('image.jpg', quality=90)
 
-data = {'email': email, 'name': name}
+    cover_image = Image.open('image.jpg').convert('RGB')
+    watermarked_image = wm.insert(cover_image)
+    watermarked_image.save("image.png")
 
-headers = {
-    'Host': 'www.proveyourworth.net',
-    'Upgrade-Insecure-Request': '1',
-    'Connection': 'keep-alive'
-}
+    return post_url
 
-print(
-    requests.Request('POST', response_payload.headers['X-Post-Back-To'],
-    files=files, data=data
-).prepare().body)
 
-response = session.post(
-    response_payload.headers['X-Post-Back-To'],
-    headers=headers, files=files, data=data)
+def post_back_to(post_url):
+    files = {
+        'image': open(file_path / "image.png", "rb"),
+        'code': open(file_path / "code.py", "rb"),
+        'resume': open(file_path / "resume.pdf", "rb")
+    }
 
-print("Request:")
-print(response.request.url)
-print(response.request.body)
-print(response.request.headers)
-print("Response")
-print(response.status_code)
-print(response.content)
-print(response.url)
-print(response.headers)
+    data = {'email': email, 'name': name, 'aboutme': aboutme}
+
+    # print(
+    #     requests.Request('POST', response_payload.headers['X-Post-Back-To'],
+    #     data=data, files=files).prepare().body)
+
+    response = session.post(post_url, data=data, files=files)
+
+    print("Response")
+    print(response.url)
+    print(response.status_code)
+    print(response.text)
+
+
+if __name__ == '__main__':
+    payload_url = get_payload_url()
+    post_url = download_and_sign_image(payload_url)
+    post_back_to(post_url)

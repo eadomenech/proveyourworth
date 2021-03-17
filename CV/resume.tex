@@ -1,0 +1,178 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Classicthesis-Styled CV
+% LaTeX Template
+% Version 1.0 (22/2/13)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Alessandro Plasmati
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass{scrartcl}
+
+\reversemarginpar % Move the margin to the left of the page 
+
+\newcommand{\MarginText}[1]{\marginpar{\raggedleft\itshape\small#1}} % New command defining the margin text style
+
+\usepackage[nochapters]{classicthesis} % Use the classicthesis style for the style of the document
+\usepackage[LabelsAligned]{currvita} % Use the currvita style for the layout of the document
+
+\renewcommand{\cvheadingfont}{\LARGE\color{Maroon}} % Font color of your name at the top
+
+\usepackage{hyperref} % Required for adding links	and customizing them
+\hypersetup{colorlinks, breaklinks, urlcolor=Maroon, linkcolor=Maroon} % Set link colors
+
+\newlength{\datebox}\settowidth{\datebox}{Spring 2011} % Set the width of the date box in each block
+
+\newcommand{\NewEntry}[3]{\noindent\hangindent=2em\hangafter=0 \parbox{\datebox}{\small \textit{#1}}\hspace{1.5em} #2 #3 % Define a command for each new block - change spacing and font sizes here: #1 is the left margin, #2 is the italic date field and #3 is the position/employer/location field
+\vspace{0.5em}} % Add some white space after each new entry
+
+\newcommand{\Description}[1]{\hangindent=2em\hangafter=0\noindent\raggedright\footnotesize{#1}\par\normalsize\vspace{1em}} % Define a command for descriptions of each entry - change spacing and font sizes here
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\thispagestyle{empty} % Stop the page count at the bottom of the first page
+
+%----------------------------------------------------------------------------------------
+%	NAME AND CONTACT INFORMATION SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{cv}{\spacedallcaps{Ernesto Avila Domenech}}\vspace{1.5em} % Your name
+
+\noindent\spacedlowsmallcaps{Personal Information}\vspace{0.5em} % Personal information heading
+
+\NewEntry{}{\textit{Born in Bayamo, }}{August 1, 1984} % Birthplace and date
+
+\NewEntry{email}{\href{mailto:eadomenech@gmail.com}{eadomenech@gmail.com}} % Email address
+
+\NewEntry{scholar}{\href{https://scholar.google.com/citations?user=Ay08P10AAAAJ\&hl/}{https://scholar.google.com/citations?user=Ay08P10AAAAJ\&hl/}} % Personal website
+
+\NewEntry{github}{\href{https://github.com/eadomenech?tab=repositories}{https://github.com/eadomenech?tab=repositories}} % Personal website
+
+\NewEntry{phone}{(M) +1 (053) 58401042} % Phone number(s)
+
+\vspace{1em} % Extra white space between the personal information section and goal
+
+
+%----------------------------------------------------------------------------------------
+%	WORK EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\noindent\spacedlowsmallcaps{Work Experience}\vspace{1em}
+
+\NewEntry{2014--Present}{Software developer and professor}
+
+\Description{\MarginText{Granma University}Software developer for energy and fuel control at the university. Web application developed using Django as a python web framework. Programming professor. \\ Reference: Yusdanis Feus P{\'e}rez (Consultant Developer, ThoughtWorks Software Ecuador S.A)\ \ $\cdotp$\ \ +1 (593) 979117390\ \ $\cdotp$\ \ \href{mailto:feus2006@gmail.com}{feus2006@gmail.com}}
+
+%------------------------------------------------
+
+\NewEntry{2020--2021}{Software developer}
+
+\Description{\MarginText{Covid19CubaData (\url{https://covid19cubadata.github.io})}Information board in real time on the evolution of COVID-19 in Cuba. Developed by Juventud T{\'e}cnica, in cooperation with the Faculty of Mathematics and Computing of the University of Havana and the Postdata.club project. It also offers a mobile application for Android. \\ Reference: Yudivi{\'a}n Almeida Cruz (Project manager, Covid19CubaData)\ \ $\cdotp$\ \ \href{mailto:yudivian@gmail.com}{yudivian@gmail.com}}
+
+%------------------------------------------------
+
+\NewEntry{2017--2021}{Software developer}
+
+\Description{\MarginText{DeporteHD (\url{https://www.deportehd.com})}Development of a system using Web2py as a python web framework. With the system, athletes will find a useful tool to improve their technique and performance, in addition to interacting with new technologies and social networks. Sports centers will be able to offer their clients added value, which differentiates them from the competition, while at the same time obtaining extra income with the sponsorship tool. Sponsors or sponsors can reach many users through new forms of communication for a more than affordable price, without intermediaries and with a tool that allows them to manage their advertising quickly and easily. \\ Reference: David Escribano (CEO, DeporteHD)\ \ $\cdotp$\ \ +34653270340\ \ $\cdotp$\ \ \href{mailto:david.acerosa@gmail.com}{david.acerosa@gmail.com}}
+
+%------------------------------------------------
+
+\NewEntry{2008--2014}{Professor}
+
+\Description{\MarginText{Informatic Science University}Mathematics teacher. \\ Reference: Edgar González Blanco (Senior Fronted Developer, \url{meru.com})\ \ $\cdotp$\ \ \href{mailto:egblanco.betasoft@gmail.com}{egblanco.betasoft@gmail.com}}
+
+%------------------------------------------------
+
+\vspace{1em} % Extra space between major sections
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\spacedlowsmallcaps{Education}\vspace{1em}
+
+\NewEntry{2012}{Camaguey University, Camaguey}
+
+\Description{\MarginText{Masters of Computer Science} Camaguey University, 2012\newline 
+Thesis: \textit{Deldroid : agile development methodology for mobile device}}
+
+%------------------------------------------------
+
+\NewEntry{2008}{Informatic Science University, Havana}
+
+\Description{\MarginText{B.S. Computer Science}Score: 4.97 of 5\ \ $\cdotp$\ \ \textit{Gold title}\ \newline
+Description: This degree focused heavily on important things like logical reasoning and systems programming.}
+
+%------------------------------------------------
+
+\vspace{1em} % Extra space between major sections
+
+%----------------------------------------------------------------------------------------
+%	COMPUTER SKILLS
+%----------------------------------------------------------------------------------------
+
+\spacedlowsmallcaps{Computer Skills}\vspace{1em}
+
+\Description{\MarginText{Operating system}GNU/Linux, Microsoft Windows}
+
+\Description{\MarginText{Programming languages}\textsc{python}, \LaTeX}
+
+\Description{\MarginText{Scientific tools}Numpy, Scipy, Pandas, Matplotlib, PyTorch}
+
+\Description{\MarginText{Frameworks}Flask, Web2py, Django, Pytest, Unittest}
+
+\Description{\MarginText{Software development methodologies}eXtreme Programming, Scrum, SXP and Delfdroid}
+
+%------------------------------------------------
+
+\vspace{1em} % Extra space between major sections
+
+%----------------------------------------------------------------------------------------
+%	OTHER INFORMATION
+%----------------------------------------------------------------------------------------
+
+\spacedlowsmallcaps{Other Information}\vspace{1em}
+
+\Description{\MarginText{Awards}2011\ \ $\cdotp$\ \ Coach, Latin-American Regional Contests (ACM-ICPC)}
+
+%------------------------------------------------
+
+\vspace{1em}
+
+\newlength{\langbox} % Create a new length for the length of languages to keep them equally spaced
+\settowidth{\langbox}{English} % Length equals the length of "English" - if you have a longer language in your list put it here
+
+\Description{\MarginText{Languages}\parbox{\langbox}{\textsc{Spanish}}\ \ $\cdotp$\ \ \ Mothertongue}
+
+\vspace{-0.5em} % Negative vertical space to counteract the vertical space between every \Description command
+
+\Description{\parbox{\langbox}{\textsc{English}}\ \ $\cdotp$\ \ \ Intermediate}
+
+\vspace{-0.5em} % Negative vertical space to counteract the vertical space between every \Description command
+
+\Description{\parbox{\langbox}{\textsc{Portuguese}}\ \ $\cdotp$\ \ \ Intermediate}
+
+\vspace{1em} % Negative vertical space to counteract the vertical space between every \Description command
+
+%------------------------------------------------
+
+\Description{\MarginText{Interests}Soccer\ \ $\cdotp$\ \ Running}
+
+%----------------------------------------------------------------------------------------
+
+\end{cv}
+
+\end{document}
