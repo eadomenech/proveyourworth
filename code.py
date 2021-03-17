@@ -58,7 +58,7 @@ def download_and_sign_image(payload_url):
 
 def post_back_to(post_url):
     files = {
-        'image': open(file_path / "image.png", "rb"),
+        'image': open(file_path / "image.jpg", "rb"),
         'code': open(file_path / "code.py", "rb"),
         'resume': open(file_path / "resume.pdf", "rb")
     }
