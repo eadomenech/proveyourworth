@@ -7,8 +7,8 @@ from PIL import Image, ImageDraw
 
 
 URL = 'https://www.proveyourworth.net/level3/'
-email = 'test@gmail.com'
-name = 'Test'
+email = 'eadomenech@gmail.com'
+name = 'Ernesto Avila Domenech'
 aboutme = "I’m a Python developer. Mainly, my experience is in " +\
     "Python, mostly web development with Django, Web2py and Flask. " +\
     "I am a hardworking and responsible person. I love soccer and I " +\
