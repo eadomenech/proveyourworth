@@ -7,8 +7,8 @@ from PIL import Image, ImageDraw
 
 
 URL = 'https://www.proveyourworth.net/level3/'
-email = 'test@gmail.com'
-name = 'Test'
+email = 'eadomenech@gmail.com'
+name = 'Ernesto Avila Domenech'
 aboutme = "I’m a Python developer. Mainly, my experience is in " +\
     "Python, mostly web development with Django, Web2py and Flask. " +\
     "I am a hardworking and responsible person. I love soccer and I " +\
@@ -51,7 +51,7 @@ def download_and_sign_image(payload_url):
     draw.text(
         (20, 20),
         f"{name} \n Hash:{params['statefulhash']}", (255, 255, 255))
-    img.save('image.jpg', quality=90)
+    img.save('image.jpg', "JPEG")
 
     return post_url
 
