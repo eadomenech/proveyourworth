@@ -214,3 +214,9 @@ if __name__ == '__main__':
     payload_url = get_payload_url()
     post_url = download_and_sign_image(payload_url)
     post_back_to(post_url)
+
+    # Extraction after making some noise to the signed image
+    watermarked_image_with_noise = Image.open('image.png').convert('RGB')
+    tampered_image = wm.extract(watermarked_image_with_noise)
+    tampered_image[0].save("tampered_image.png")
+    print(f"Modified blocks: {tampered_image[1]}")
